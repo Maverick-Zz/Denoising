@@ -46,9 +46,6 @@ sample_path = "../data/KuaiRand_Pure/ml-100k/test.pkl"
 data = read_pickle(sample_path)
 
 
-# 获得长度  定义获取序列长度的函数，定义了一个名为 get_seq_length 的函数，该函数接受一个字符串作为输入参数。
-# seq_str = seq_str.split(",") 将输入的逗号分隔字符串转换为列表。
-# return len(seq_str) 返回该列表的长度，即字符串中包含的元素个数，也就是序列的长度。
 def get_seq_length(seq_str):
     seq_str = seq_str.split(",")
     return len(seq_str)
@@ -75,20 +72,6 @@ pv_seq_key2index = {}
 click_seq_key2index = {}
 
 
-# 定义了一个函数 like_seq_split(x)，该函数接受一个逗号分隔的字符串作为输入（如 '1,2,3,4'），
-# 将其分割成单个元素，并将每个元素映射为一个索引值，然后返回一个由这些索引值组成的列表。
-# 通过这个函数，逗号分隔的字符串序列（如 '1,2,3,4'）被转换为一个整数索引序列（如 [1, 2, 3, 4]）
-# def like_seq_split(x):
-#     key_ans = x.split(',')  # 将输入的逗号分隔字符串 x 分割为一个由各个子字符串组成的列表 key_ans。
-#     for key in key_ans:
-#         if key not in like_seq_key2index:  # 检查当前元素是否在 like_seq_key2index 字典中，
-#             # 如果不在，则表示它是一个新的元素。
-#             # Notice : input value 0 is a special "padding",so we do not use 0 to encode valid feature for sequence input
-#             like_seq_key2index[key] = len(like_seq_key2index) + 1
-#             # 将新的元素加入到 like_seq_key2index 字典中，并将其映射为一个唯一的索引值
-#             # 这里的索引值是从1开始的，因为0通常用于表示特殊的“padding”值。
-#     return list(map(lambda x: like_seq_key2index[x], key_ans))
-
 
 # 使用 map 函数，将 key_ans 列表中的每个元素通过 like_seq_key2index 字典进行映射，
 # 并返回一个新的列表，其中包含了这些元素的索引值。
@@ -108,8 +91,6 @@ def click_seq_split(x):
             # Notice : input value 0 is a special "padding",so we do not use 0 to encode valid feature for sequence input
             click_seq_key2index[key] = len(click_seq_key2index) + 1
     return list(map(lambda x: click_seq_key2index[x], key_ans))
-
-
 
 
 # label encoding
@@ -152,15 +133,6 @@ click_seq_list = pad_sequences(click_seq_list, maxlen=click_seq_max_len, padding
 fixlen_feature_columns = [SparseFeat(feat, data[feat].nunique(), embedding_dim=18)
                           for feat in sparse_features]
 
-#print(fixlen_feature_columns)
-
-#print(data[feat].nunique())
-# 遍历了 sparse_features 列表中的每个特征名称，并为每个特征创建了一个 SparseFeat 对象，将这些对象组成了一个列表。
-# 在每次迭代中，为当前特征名称 feat 创建了一个 SparseFeat 对象。
-# feat 是特征的名称。
-# data[feat].nunique() 返回该特征的不同取值数量，表示词汇表的大小。
-# embedding_dim=4 指定了该特征的嵌入维度为 4。
-# 这个列表推导式的结果是一个包含了所有稀疏特征 SparseFeat 对象的列表。
 
 # 创建了一个包含了序列特征的 VarLenSparseFeat 对象的列表。
 # VarLenSparseFeat 是 DeepCTR 库中定义的一个特征类，用于处理不定长的序列特征。
@@ -175,16 +147,9 @@ dnn_feature_columns = fixlen_feature_columns + varlen_feature_columns
 feature_names = get_feature_names(linear_feature_columns + dnn_feature_columns)
 
 
-
-
 # 将数据划分为训练集、验证集和测试集
 
-print("Min timestamp:", data['timestamp'].min())
-print("Max timestamp:", data['timestamp'].max())
-
 split_date = 1045000000
-
-# 1045000000时，50个epoch，best auc = 0.8149
 
 train = data[data['timestamp'] < split_date]
 test = data[data['timestamp'] >= split_date]
@@ -198,9 +163,6 @@ print(f"Train samples: {len(train)}, Test samples: {len(test)}")
 seq_length_feautures_name = ['pv_seq_length', 'click_seq_length']
 feature_names += seq_length_feautures_name
 train_model_input = {name: train[name] for name in feature_names}
-# 表示一个字典推导式，遍历 feature_names 中的每个特征名字，用它作为键，然后从训练集 train 中取出相应的特征数据作为值。
-# 最终，这行代码生成了一个字典 train_model_input，其中包含了模型训练时所需的所有特征数据。
-#val_model_input = {name: val[name] for name in feature_names}
 test_model_input = {name: test[name] for name in feature_names}
 
 
@@ -236,7 +198,7 @@ def sequence_denoising_network(input_dim):
     model = Model(inputs=input_layer, outputs=output_layer)
     return model
 
-# 创建门控网络
+# 创建去噪网络
 seq_denoising_net = sequence_denoising_network(max_len)
 
 # 编译模型
