@@ -339,7 +339,7 @@ if use_cuda and torch.cuda.is_available():
     device = 'cuda:0'
 
 
-model = DDIN2(dnn_feature_columns, target_feature_list=["item_id"], pv_history_fc_names=["pv_seq"], pv_item_id_history_fc_names=['pv_item_id_seq'],
+model = DDIN(dnn_feature_columns, target_feature_list=["item_id"], pv_history_fc_names=["pv_seq"], pv_item_id_history_fc_names=['pv_item_id_seq'],
              pv_release_year_history_fc_names=['pv_release_year_seq'], pv_class_history_fc_names=['pv_class_seq'], click_history_fc_names=["click_seq"],
              click_item_id_history_fc_names=['click_item_id_seq'], click_release_year_history_fc_names=['click_release_year_seq'], click_class_history_fc_names=['click_class_seq'],
             task='binary',
@@ -351,5 +351,5 @@ model.compile("adagrad", "binary_crossentropy",
               metrics=["binary_crossentropy", "auc"], )
 
 
-history = model.fit(train_model_input, train[target].values, batch_size=1024, epochs=50, verbose=2,
+history = model.fit(train_model_input, train[target].values, batch_size=2048, epochs=50, verbose=2,
                     validation_data=(test_model_input, test[target].values))
