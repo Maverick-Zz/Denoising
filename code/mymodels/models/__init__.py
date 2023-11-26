@@ -6,7 +6,6 @@ from .fibinet import FiBiNET
 from .dien import DIEN
 from .din import DIN
 from .ddin import DDIN
-from .ddin2 import DDIN2
 from .dmt import DMT
 from .dmr import DMR
 from .dfn import DFN
