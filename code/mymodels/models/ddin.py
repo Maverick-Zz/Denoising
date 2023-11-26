@@ -128,17 +128,6 @@ class DDIN(BaseModel):
         self.d_model = att_emb_dim
 
         self.pv_gate = nn.Sequential(
-            # nn.Linear(64, 512, bias=False),
-            # nn.LeakyReLU(),
-            # nn.Dropout(0.5),
-            # nn.Linear(512, 256, bias=False),  # 增加神经元数量
-            # nn.LeakyReLU(),
-            # # 增加神经元数量
-            # nn.Linear(256, 128, bias=False),  # 增加神经元数量
-            # nn.LeakyReLU(),
-            # # nn.Dropout(0.5),  # 增加 Dropout
-            # nn.Linear(128, 64, bias=False),
-            # nn.Sigmoid()
             nn.Linear(64, 64, bias=False),
             nn.LeakyReLU(),
             #nn.Dropout(0.5),
@@ -146,17 +135,6 @@ class DDIN(BaseModel):
             nn.Sigmoid()
         )
         self.click_gate = nn.Sequential(
-            # nn.Linear(64, 512, bias=False),
-            # nn.LeakyReLU(),
-            # nn.Dropout(0.5),
-            # nn.Linear(512, 256, bias=False),  # 增加神经元数量
-            # nn.LeakyReLU(),
-            # # 增加神经元数量
-            # nn.Linear(256, 128, bias=False),  # 增加神经元数量
-            # nn.LeakyReLU(),
-            # #nn.Dropout(0.5),  # 增加 Dropout
-            # nn.Linear(128, 64, bias=False),
-            # nn.Sigmoid()
             nn.Linear(64, 64, bias=False),
             nn.LeakyReLU(),
             # nn.Dropout(0.5),
