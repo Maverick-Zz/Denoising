@@ -163,15 +163,9 @@ for feat in sparse_features:
 """ pv_seq """
 print("------ start to process pv_seq -------")
 pv_seq_list = list(map(pv_seq_split, data['pv_seq'].values))
-# 使用 pv_seq_split 函数将 data['pv_seq'] 中的每个逗号分隔字符串转换为整数索引序列，并将这些序列组成一个列表
 pv_seq_length = np.array(list(map(len, pv_seq_list)))
-# 使用 map 函数计算 pv_seq_list 中每个序列的长度，并将这些长度组成一个 NumPy 数组 pv_seq_length。
-# 这个数组表示了 pv_seq_list 中每个序列的长度。
 pv_seq_max_len = max(pv_seq_length)
-# max 函数找到 pv_seq_length 数组中的最大值，即所有序列中最长的序列的长度。
-# pv_seq padding
 pv_seq_list = pad_sequences(pv_seq_list, maxlen=pv_seq_max_len, padding='post', )
-# 使用 pad_sequences 函数将 pv_seq_list 中的所有序列填充到相同的长度。
 
 """ pv_item_id_seq """
 print("------ start to process pv_item_id_seq -------")
