@@ -12,7 +12,7 @@ from ..layers import *
 from ..layers.sequence import AttentionSequencePoolingLayer
 
 
-class DDIN(BaseModel):
+class DDINMulti(BaseModel):
     """Instantiates the Deep Interest Network architecture.
 
     :param dnn_feature_columns: An iterable containing all the features used by deep part of the model.
@@ -42,7 +42,7 @@ class DDIN(BaseModel):
                  att_activation='Dice', att_weight_normalization=True, l2_reg_dnn=0.0,
                  l2_reg_embedding=1e-6, dnn_dropout=0.5, init_std=0.0001,  #0.0000212
                  seed=1026, task='binary', device='cpu', gpus=None):
-        super(DDIN, self).__init__([], dnn_feature_columns, l2_reg_linear=0.0, l2_reg_embedding=l2_reg_embedding,
+        super(DDINMulti, self).__init__([], dnn_feature_columns, l2_reg_linear=0.0, l2_reg_embedding=l2_reg_embedding,
                                   init_std=init_std, seed=seed, task=task, device=device, gpus=gpus)
 
         self.sparse_feature_columns = list(
