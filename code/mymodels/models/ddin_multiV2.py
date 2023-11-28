@@ -128,18 +128,28 @@ class DDINMultiV2(BaseModel):
         self.d_model = att_emb_dim
         self.pv_gate_branches = nn.ModuleList([
             nn.Sequential(
-                nn.Linear(16, 64, bias=False),
+                nn.Linear(16, 128, bias=False),
                 nn.LeakyReLU(),
-                nn.Linear(64, 16, bias=False),
+                nn.Linear(128, 64, bias=False),
+                nn.LeakyReLU(),
+                nn.Linear(64, 32, bias=False),
+                nn.LeakyReLU(),
+                nn.Linear(32, 16, bias=False),
+                nn.LeakyReLU(),
                 nn.Sigmoid()
             ) for _ in range(4)  # 使用4个分支
         ])
 
         self.click_gate_branches = nn.ModuleList([
             nn.Sequential(
-                nn.Linear(16, 64, bias=False),
+                nn.Linear(16, 128, bias=False),
                 nn.LeakyReLU(),
-                nn.Linear(64, 16, bias=False),
+                nn.Linear(128, 64, bias=False),
+                nn.LeakyReLU(),
+                nn.Linear(64, 32, bias=False),
+                nn.LeakyReLU(),
+                nn.Linear(32, 16, bias=False),
+                nn.LeakyReLU(),
                 nn.Sigmoid()
             ) for _ in range(4)  # 使用4个分支
         ])
