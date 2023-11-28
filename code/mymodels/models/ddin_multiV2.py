@@ -128,100 +128,25 @@ class DDINMultiV2(BaseModel):
         self.d_model = att_emb_dim
         self.pv_gate_branches = nn.ModuleList([
             nn.Sequential(
-                nn.Linear(16, 128, bias=False),
+                nn.Linear(16, 64, bias=False),
                 nn.LeakyReLU(),
-                #nn.Dropout(0.1),
-                #nn.Linear(256, 128, bias=False),
-                #nn.LeakyReLU(),
-                # nn.Dropout(0.3),
-                nn.Linear(128, 64, bias=False),
-                nn.LeakyReLU(),
-                nn.Linear(64, 32, bias=False),
-                nn.LeakyReLU(),
-                nn.Linear(32, 16, bias=False),
-                #nn.LeakyReLU(),
+                nn.Linear(64, 16, bias=False),
                 nn.Sigmoid()
-            ) for _ in range(4)  # 使用两个分支
+            ) for _ in range(4)  # 使用4个分支
         ])
 
         self.click_gate_branches = nn.ModuleList([
             nn.Sequential(
-                nn.Linear(16, 128, bias=False),
+                nn.Linear(16, 64, bias=False),
                 nn.LeakyReLU(),
-                # nn.Dropout(0.1),
-                #nn.Linear(256, 128, bias=False),
-                #nn.LeakyReLU(),
-                # nn.Dropout(0.3),
-                nn.Linear(128, 64, bias=False),
-                nn.LeakyReLU(),
-                nn.Linear(64, 32, bias=False),
-                nn.LeakyReLU(),
-                nn.Linear(32, 16, bias=False),
-                # nn.LeakyReLU(),
+                nn.Linear(64, 16, bias=False),
                 nn.Sigmoid()
-            ) for _ in range(4)  # 使用两个分支
+            ) for _ in range(4)  # 使用4个分支
         ])
 
 
 
-        # self.pv_gate = nn.Sequential(
-        #     # nn.Linear(68, 1024, bias=False),
-        #     # nn.LeakyReLU(),
-        #     # nn.Dropout(0.5),
-        #     # nn.Linear(1024, 512, bias=False),
-        #     # nn.LeakyReLU(),
-        #     # nn.Dropout(0.3),
-        #     # nn.Linear(512, 256, bias=False),  # 增加神经元数量
-        #     # nn.LeakyReLU(),
-        #     # #nn.Dropout(0.3),
-        #     # # 增加神经元数量
-        #     # nn.Linear(256, 128, bias=False),  # 增加神经元数量
-        #     # nn.LeakyReLU(),
-        #     # nn.Linear(128, 68, bias=False),
-        #     # nn.Sigmoid()
-        #     nn.Linear(68, 34, bias=False),
-        #     nn.LeakyReLU(),
-        #     #nn.Dropout(0.3),
-        #     nn.Linear(34, 68, bias=False),  # 增加神经元数量
-        #     nn.LeakyReLU(),
-        #     #nn.Linear(128, 34, bias=False),  # 增加神经元数量
-        #     nn.LeakyReLU(),
-        #         # nn.Dropout(0.3),
-        #         # 增加神经元数量
-        #     nn.Linear(68, 68, bias=False),  # 增加神经元数量
-        #         # nn.LeakyReLU(),
-        #         # nn.Linear(128, 64, bias=False),
-        #     nn.Sigmoid()
-        # )
-        # self.click_gate = nn.Sequential(
-        #     # nn.Linear(68, 1024, bias=False),
-        #     # nn.LeakyReLU(),
-        #     # nn.Dropout(0.5),
-        #     # nn.Linear(1024, 512, bias=False),
-        #     # nn.LeakyReLU(),
-        #     # nn.Dropout(0.3),
-        #     # nn.Linear(512, 256, bias=False),  # 增加神经元数量
-        #     # nn.LeakyReLU(),
-        #     # #nn.Dropout(0.3),
-        #     # # 增加神经元数量
-        #     # nn.Linear(256, 128, bias=False),  # 增加神经元数量
-        #     # nn.LeakyReLU(),
-        #     # nn.Linear(128, 68, bias=False),
-        #     # nn.Sigmoid()
-        #     nn.Linear(68, 34, bias=False),
-        #     nn.LeakyReLU(),
-        #     #nn.Dropout(0.3),
-        #     nn.Linear(34, 68, bias=False),  # 增加神经元数量
-        #     nn.LeakyReLU(),
-        #     #nn.Linear(128, 34, bias=False),  # 增加神经元数量
-        #     #nn.LeakyReLU(),
-        #     #nn.Dropout(0.3),
-        #         # 增加神经元数量
-        #     nn.Linear(68, 68, bias=False),  # 增加神经元数量
-        #     # nn.LeakyReLU(),
-        #     # nn.Linear(128, 64, bias=False),
-        #     nn.Sigmoid()
-        #  )
+     
         self.query_transform = nn.Linear(16, 64)
 
         self.dnn = DNN(inputs_dim=self.compute_input_dim(dnn_feature_columns),
@@ -305,11 +230,6 @@ class DDINMultiV2(BaseModel):
         pv_release_year_emb_processed = pv_release_year_emb_processed * pv_release_year_emb
         pv_class_emb_processed = pv_class_emb_processed * pv_class_emb
 
-        # combined_pv_keys_emb = pv_keys_emb + pv_keys_emb_processed
-        # combined_pv_item_id_emb = pv_item_id_emb + pv_item_id_emb_processed
-        # combined_pv_release_year_emb = pv_release_year_emb + pv_release_year_emb_processed
-        # combined_pv_class_emb = pv_class_emb + pv_class_emb_processed
-
         click_keys_emb = torch.cat(click_keys_emb_list, dim=-1)
         click_item_id_emb = torch.cat(click_item_id_emb_list, dim=-1)
         click_release_year_emb = torch.cat(click_release_year_emb_list, dim=-1)
@@ -324,12 +244,6 @@ class DDINMultiV2(BaseModel):
         click_item_id_emb_processed = click_item_id_emb_processed * click_item_id_emb
         click_release_year_emb_processed = click_release_year_emb_processed * click_release_year_emb
         click_class_emb_processed = click_class_emb_processed * click_class_emb
-
-        # combined_click_keys_emb = click_keys_emb + click_keys_emb_processed
-        # combined_click_item_id_emb = click_item_id_emb + click_item_id_emb_processed
-        # combined_click_release_year_emb = click_release_year_emb + click_release_year_emb_processed
-        # combined_click_class_emb = click_class_emb + click_class_emb_processed
-
 
 
         combined_pv_seq_emb = torch.cat([pv_keys_emb_processed, pv_keys_emb_processed, pv_release_year_emb_processed, pv_class_emb_processed], dim=-1)
