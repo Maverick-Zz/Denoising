@@ -12,7 +12,7 @@ from ..layers import *
 from ..layers.sequence import AttentionSequencePoolingLayer
 
 
-class DDINMultiV4(BaseModel):
+class DDINMultiV3(BaseModel):
     """Instantiates the Deep Interest Network architecture.
 
     :param dnn_feature_columns: An iterable containing all the features used by deep part of the model.
@@ -131,14 +131,8 @@ class DDINMultiV4(BaseModel):
             nn.Sequential(
                 nn.Linear(16, 128, bias=False),
                 nn.LeakyReLU(),
-                # nn.Dropout(0.5),
-                # nn.Linear(256, 128, bias=False),
-                # nn.LeakyReLU(),
-                # nn.Dropout(0.3),
                 nn.Linear(128, 64, bias=False),
                 nn.LeakyReLU(),
-                # nn.Linear(16, 64, bias=False),
-                # nn.LeakyReLU(),
                 nn.Linear(64, 32, bias=False),
                 nn.LeakyReLU(),
                 nn.Linear(32, 16, bias=False),
@@ -152,14 +146,8 @@ class DDINMultiV4(BaseModel):
             nn.Sequential(
                 nn.Linear(16, 128, bias=False),
                 nn.LeakyReLU(),
-                # nn.Dropout(0.5),
-                # nn.Linear(256, 128, bias=False),
-                # nn.LeakyReLU(),
-                # nn.Dropout(0.3),
                 nn.Linear(128, 64, bias=False),
                 nn.LeakyReLU(),
-                # nn.Linear(16, 64, bias=False),
-                # nn.LeakyReLU(),
                 nn.Linear(64, 32, bias=False),
                 nn.LeakyReLU(),
                 nn.Linear(32, 16, bias=False),
@@ -277,12 +265,6 @@ class DDINMultiV4(BaseModel):
         combined_pv_seq_emb = torch.cat([pv_keys_emb_processed, pv_item_id_emb_processed, pv_release_year_emb_processed, pv_class_emb_processed],dim=-1)
         combined_click_seq_emb = torch.cat([click_keys_emb_processed, click_item_id_emb_processed, click_release_year_emb_processed,click_class_emb_processed], dim=-1)
 
-        # pv attention
-                               # [B, T, E]
-
-        # pv seq 去噪
-        #pv_keys_emb_gate = self.pv_gate(combined_pv_seq_emb)  # 这才是原始的去噪逻辑
-        #combined_pv_seq_emb = combined_pv_seq_emb * pv_keys_emb_gate
 
         # 行为序列其他部分
         pv_keys_length_feature_name = [feat.length_name for feat in self.varlen_sparse_feature_columns if
@@ -291,16 +273,6 @@ class DDINMultiV4(BaseModel):
 
 
         pv_hist = self.pv_attention(query_emb_transformed, combined_pv_seq_emb, pv_keys_length)           # [B, 1, E]
-
-
-        # click attention
-        #click_keys_emb = torch.cat(combined_click_seq_emb, dim=-1)                       # [B, T, E]
-
-        # click seq 去噪
-
-        #click_keys_emb_gate = self.click_gate(combined_click_seq_emb)  # 这才是原始的去噪逻辑
-        #combined_click_seq_emb = combined_click_seq_emb * click_keys_emb_gate
-
 
 
         click_keys_length_feature_name = [feat.length_name for feat in self.varlen_sparse_feature_columns if
@@ -326,17 +298,6 @@ class DDINMultiV4(BaseModel):
         y_pred = self.out(dnn_logit)
 
 
-        #输出的样本权重
-        # sample_weight = None
-        # if y is not None:
-        #     # 扩展 y 使其维度与 deep_input_emb2 匹配
-        #     y_expanded = y.view(-1, 1).float()  # 确保 y 是浮点型并扩展维度
-        #     sample_weight_input = torch.cat((deep_input_emb2, y_expanded), dim=-1)
-        #     sample_weight = self.sample_weight_fc(sample_weight_input)
-        #     sample_weight = torch.sigmoid(sample_weight)  # 确保权重在0到1之间
-        #
-        # return y_pred, sample_weight
-
         # sample_weight = None
         # if y != None:
         #     sample_weight_input = torch.cat((deep_input_emb, pv_hist, click_hist), dim=-1)
@@ -344,27 +305,9 @@ class DDINMultiV4(BaseModel):
         #     sample_weight_input = combined_dnn_input([sample_weight_input], dense_value_list)
         #     sample_weight_input = torch.cat((sample_weight_input, y), dim=-1)  # 正负样本也输入其中
         #     sample_weight = self.sample_weight_fc(sample_weight_input)
-        #     sample_weight = torch.sigmoid(sample_weight)
         #
         # return y_pred, sample_weight
 
-
-        # sample_weight_adjusted = None
-        # if y != None:
-        #     sample_weight_input = torch.cat((deep_input_emb, pv_hist, click_hist), dim=-1)
-        #     sample_weight_input = sample_weight_input.view(sample_weight_input.size(0), -1)
-        #     sample_weight_input = combined_dnn_input([sample_weight_input], dense_value_list)
-        #     sample_weight_input = torch.cat((sample_weight_input, y), dim=-1) # 正负样本也输入其中
-        #     sample_weight = self.sample_weight_fc(sample_weight_input)
-        #     sample_weight = torch.sigmoid(sample_weight)
-        #     #sample_weight = torch.clamp(sample_weight, min=0.1, max=1.0)
-        #     mean_weight = sample_weight.mean()
-        #     adjustment_factor = 1 / mean_weight
-        #     sample_weight_adjusted = sample_weight * adjustment_factor
-        #
-        #     # 保持样本权重的区分度
-        #     sample_weight_adjusted = torch.clamp(sample_weight_adjusted, min=0.0, max=2.0)
-        # return y_pred, sample_weight_adjusted
 
 
         sample_weight_adjusted = None
@@ -374,13 +317,7 @@ class DDINMultiV4(BaseModel):
             sample_weight_input = sample_weight_input.view(sample_weight_input.size(0), -1)
             sample_weight_input = torch.cat((sample_weight_input, y_expanded), dim=-1)
             sample_weight = self.sample_weight_fc(sample_weight_input)
-            # sample_weight = torch.tanh(sample_weight)  # Tanh激活函数
-            #sample_weight = (sample_weight + 1) * 1.0  # 将范围调整到0到2
-
-            #sample_weight = torch.sigmoid(sample_weight)
-
-
-
+         
             # 根据权重均值的偏差进行调整
             positive_mask = (y_expanded == 1).float()
             negative_mask = (y_expanded == 0).float()
@@ -395,18 +332,7 @@ class DDINMultiV4(BaseModel):
             # 为保持均值为1，正样本和负样本均应用相同的调整
             sample_weight_adjusted = sample_weight + adjustment
             sample_weight_adjusted = torch.clamp(sample_weight_adjusted, 0, 2)  # 限制权重范围
-            # 考虑样本的预测难度
-            # prediction_error = torch.abs(y_pred - y_expanded)  # 预测误差
-            # error_weight_factor = 1.2 # 差权重因子
-            # sample_weight_adjusted = sample_weight_adjusted * (1 + error_weight_factor * prediction_error)
-
-            # 增加权重的方差
-            # desired_std = 0.505 # 可调整此值以增加分散性
-            # weight_std = sample_weight_adjusted.std()
-            # #print("weight_std:", weight_std)
-            # sample_weight_adjusted = (sample_weight_adjusted - 1) * (desired_std / weight_std) + 1
-            # sample_weight_adjusted = torch.clamp(sample_weight_adjusted, 0, 2)
-
+            
         return y_pred, sample_weight_adjusted
 
 
