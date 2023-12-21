@@ -8,6 +8,7 @@ from .din import DIN
 from .ddin import DDIN
 from .ddin_multi import DDINMulti
 from .ddin_multiv2 import DDINMultiV2
+from .ddin_multiv3 import DDINMultiV3
 from .dmt import DMT
 from .dmr import DMR
 from .dfn import DFN
