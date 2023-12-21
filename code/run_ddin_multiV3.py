@@ -338,7 +338,7 @@ if use_cuda and torch.cuda.is_available():
     device = 'cuda:0'
 
 
-model = DDINMultiV4(dnn_feature_columns, target_feature_list=["item_id"], pv_history_fc_names=["pv_seq"], pv_item_id_history_fc_names=['pv_item_id_seq'],
+model = DDINMultiV3(dnn_feature_columns, target_feature_list=["item_id"], pv_history_fc_names=["pv_seq"], pv_item_id_history_fc_names=['pv_item_id_seq'],
              pv_release_year_history_fc_names=['pv_release_year_seq'], pv_class_history_fc_names=['pv_class_seq'], click_history_fc_names=["click_seq"],
              click_item_id_history_fc_names=['click_item_id_seq'], click_release_year_history_fc_names=['click_release_year_seq'], click_class_history_fc_names=['click_class_seq'],
             task='binary',  #"item_id", "release_year","class"
